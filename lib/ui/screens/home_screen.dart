@@ -88,6 +88,38 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void _deleteProduct(BuildContext context, String productId) async {
+    final client = GraphQLProvider.of(context).value;
+    try {
+      final result = await client.mutate(
+        MutationOptions(
+          document: gql(deleteProduct),
+          variables: {
+            'id': productId,
+          },
+        ),
+      );
+
+      if (result.hasException) {
+        throw result.exception!;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Ma'lumotlar muvaffaqiyatli yangilandi"),
+        ),
+      );
+      print(result);
+    } catch (e) {
+      print(e);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Error: ${e.toString()}"),
+        ),
+      );
+    }
+  }
+
   // void dele
   @override
   Widget build(BuildContext context) {
@@ -130,39 +162,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     IconButton(
-                      onPressed: () async {
-                        // print(product['id']);
-
-                        final client = GraphQLProvider.of(context).value;
-                        try {
-                          final result = await client.mutate(
-                            MutationOptions(
-                              document: gql(deleteProduct),
-                              variables: {
-                                'id': product['id'],
-                              },
-                            ),
-                          );
-
-                          if (result.hasException) {
-                            throw result.exception!;
-                          }
-
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content:
-                                  Text("Ma'lumotlar muvaffaqiyatli yangilandi"),
-                            ),
-                          );
-                          print(result);
-                        } catch (e) {
-                          print(e);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text("Error: ${e.toString()}"),
-                            ),
-                          );
-                        }
+                      onPressed: () {
+                        _deleteProduct(context, product['id']);
+                        setState(() {});
                       },
                       icon: const Icon(
                         Icons.delete,
